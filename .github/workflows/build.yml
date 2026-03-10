@@ -1,0 +1,63 @@
+name: Android Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # 允许手动触发构建
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+    
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
+      with:
+        gradle-version: '8.2'
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --stacktrace
+    
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HappyEnglish-Debug-APK
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
+    
+    - name: Create Release (if tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: app/build/outputs/apk/debug/app-debug.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build Summary
+      run: |
+        echo "## 🎉 构建完成！" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📱 APK 信息" >> $GITHUB_STEP_SUMMARY
+        echo "- 文件名：app-debug.apk" >> $GITHUB_STEP_SUMMARY
+        echo "- 大小：$(ls -lh app/build/outputs/apk/debug/app-debug.apk | awk '{print $5}')" >> $GITHUB_STEP_SUMMARY
+        echo "- 构建时间：$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📥 下载方式" >> $GITHUB_STEP_SUMMARY
+        echo "1. 点击上方的 'HappyEnglish-Debug-APK' artifact 下载" >> $GITHUB_STEP_SUMMARY
+        echo "2. 或等待 Release 发布后在 Releases 页面下载" >> $GITHUB_STEP_SUMMARY
