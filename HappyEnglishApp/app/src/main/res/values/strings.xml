@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">快乐学英语</string>
+    <string name="start_learning">开始学习</string>
+    <string name="ai_practice">AI 智能练习</string>
+    <string name="progress">学习进度</string>
+    <string name="settings">设置</string>
+    <string name="next">下一题</string>
+    <string name="correct">答对了！</string>
+    <string name="wrong">再加油！</string>
+    <string name="score">得分</string>
+    <string name="difficulty">难度</string>
+</resources>
